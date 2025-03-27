@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { ProductInfoType, ProductType } from "../types/product";
+import { ProductInfoType } from "../types/product";
 import { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { stopPropagation } from "../utils/mouseEvent.utils";

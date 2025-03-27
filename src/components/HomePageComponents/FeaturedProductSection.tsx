@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import ProductContainer from "../ProductContainer";
 import { useFetchFeaturedProducts } from "../../service/product.service";
-import { ProductType } from "../../types/product";
+import { ProductInfoType } from "../../types/product";
 
 const FeaturedProductSection = () => {
   const { data: products, isLoading } = useFetchFeaturedProducts();
@@ -23,7 +23,7 @@ const FeaturedProductSection = () => {
                 className="animate-pulse bg-gray-200 h-60 rounded-md"
               ></div>
             ))
-          : products?.map((product: ProductType, index: number) => (
+          : products?.map((product: ProductInfoType, index: number) => (
               <ProductContainer key={index} product={product} />
             ))}
       </div>

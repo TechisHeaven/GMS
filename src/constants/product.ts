@@ -1,5 +1,3 @@
-import { ProductInfoType } from "../types/product";
-
 export const products = [
   {
     id: 1,
@@ -55,28 +53,3 @@ export const products = [
     categories: [{ id: 1114, name: "eggs" }],
   },
 ];
-
-export const product: ProductInfoType = {
-  id: "MB3442",
-  name: "Bobs red mill whole wheat organic flour",
-  price: 29.12,
-  rating: 4.5,
-  reviews: 15,
-  description:
-    "Coconut Oil is a great-tasting, nutritious alternative to use when cooking or baking. Coconut Oil is a naturally rich source of medium chain triglycerides.",
-  images: [
-    "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
-    "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
-    "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
-    "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
-    "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
-  ],
-  categories: [
-    { id: 1111, name: "vegitables" },
-    { id: 1115, name: "dairy" },
-    { id: 1112, name: "snacks" },
-  ],
-  store: "Bevmo grocery",
-  soldCount: 100,
-  soldTime: 35,
-};

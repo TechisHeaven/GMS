@@ -11,9 +11,12 @@ const ProductInformationContainer = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const navigate = useNavigate();
-  const { addToCart, cart } = useCart();
+  const { addToCart, cart, proceedToCheckout } = useCart();
 
   function handleBuyNow() {
+    proceedToCheckout([
+      { quantity: 1, product: product, price: product.price },
+    ]);
     navigate("/checkout");
   }
 

@@ -4,18 +4,18 @@ import {
   isRouteErrorResponse,
   useNavigate,
 } from "react-router-dom";
-import { AlertCircle, RefreshCw, Home } from "lucide-react";
+import { RefreshCw, Home } from "lucide-react";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
 }
 
 const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({ children }) => {
-  const [hasError, setHasError] = useState(false);
+  const [hasError, _] = useState(false);
 
-  const handleError = () => {
-    setHasError(true);
-  };
+  // const handleError = () => {
+  //   setHasError(true);
+  // };
 
   if (hasError) {
     return <ErrorPage />;

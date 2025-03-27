@@ -1,46 +1,25 @@
 import { Pencil, Plus, Minus } from "lucide-react";
 import { useState } from "react";
 import EditDeliveryInformationModal from "../components/EditDeliveryInformationModal";
-import { useNavigate } from "react-router-dom";
-
-const cartItems = [
-  {
-    store: "Shoppers grocery market",
-    deliveryTime: "15 minute",
-    logo: "https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=50&h=50&fit=crop",
-    items: [
-      {
-        name: "Bobs Red Mill Whole Wheat",
-        price: 29.12,
-        quantity: 1,
-        weight: "500 gm",
-        image:
-          "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&h=100&fit=crop",
-      },
-    ],
-  },
-  {
-    store: "Loblaws market",
-    deliveryTime: "12 minute",
-    logo: "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=50&h=50&fit=crop",
-    items: [
-      {
-        name: "Fresh Vegetables Mix",
-        price: 12.99,
-        quantity: 2,
-        weight: "1 kg",
-        image:
-          "https://images.unsplash.com/photo-1518843875459-f738682238a6?w=100&h=100&fit=crop",
-      },
-    ],
-  },
-];
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useCart } from "../providers/cart.provider";
+import { StoreType } from "../types/store";
+import { ProductInfoType } from "../types/product";
+import { useFetchProductsById } from "../service/product.service";
+import { OrderService } from "../service/order.service";
+import { useMutation } from "@tanstack/react-query";
 
 export default function CheckoutPage() {
-  type PaymentSelectedType = "online" | "pos" | "cash";
+  type PaymentSelectedType = "cash";
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const productIds = searchParams.get("items")?.split(",") || [];
+
+  const { data: allProducts } = useFetchProductsById(productIds);
+
+  const { checkoutItems, clearCart } = useCart();
   const [selectedPayment, setSelectedPayment] =
-    useState<PaymentSelectedType>("online");
+    useState<PaymentSelectedType>("cash");
   const [isDeliveryInformationModalOpen, setIsDeliveryInformationModalOpen] =
     useState(false);
   const [deliveryInformation, setDeliveryInformation] = useState({
@@ -60,8 +39,63 @@ export default function CheckoutPage() {
     setDeliveryInformation(newData);
   };
 
+  const mutation = useMutation({
+    mutationFn: OrderService.placeOrder,
+    onSuccess: (data: { orderId: string }) => {
+      console.log("Order placed successfully:", data);
+      clearCart();
+      navigate(`/confirm-order/${data.orderId}`);
+    },
+    onError: (error: Error) => {
+      console.error("Error placing order:", error.message);
+    },
+  });
+
   const handleConfirmOrder = () => {
-    navigate(`/confirm-order/1111`);
+    console.log("Order placed:", checkoutItems);
+    const orders = Object.values(
+      checkoutItems.reduce((acc, item) => {
+        if (typeof item.product !== "string" && item.product.store) {
+          const storeId = item.product.store._id;
+
+          if (!acc[storeId]) {
+            acc[storeId] = {
+              store: item.product.store._id,
+              customer: {
+                _id: "67e29e7778a4162b637c0c9d",
+                name: deliveryInformation.fullName,
+                phone: deliveryInformation.phone,
+                email: "test@gmail.com",
+                shippingAddress: deliveryInformation.address,
+              },
+              items: [],
+              totalAmount: 0,
+              paymentMethod: selectedPayment,
+              notes: "",
+              totalQuantity: 0, // Added totalQuantity field
+            };
+          }
+          acc[storeId].items.push({
+            product: item.product._id,
+            quantity: item.quantity, // Store quantity in items
+            price: item.price,
+            totalPrice: item.quantity * item.price, // Add totalPrice for each item
+          });
+
+          acc[storeId].totalAmount += item.quantity * item.price;
+          acc[storeId].totalQuantity += item.quantity; // Increment totalQuantity
+        }
+        return acc;
+      }, {} as Record<string, any>)
+    );
+    console.log("Orders:", orders);
+
+    mutation.mutate(orders as any);
+
+    // if (checkoutItems.length > 1) {
+    //   clearCart();
+    // }
+    // navigate(`/confirm-order/1111`);
   };
 
   const allValuesNotNull = Object.values(deliveryInformation).every(
@@ -119,57 +153,100 @@ export default function CheckoutPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-6">Review item by store</h2>
 
-            {cartItems.map((store, storeIndex) => (
+            {Object.values(
+              checkoutItems.reduce(
+                (acc, item) => {
+                  if (typeof item.product !== "string" && item.product.store) {
+                    const storeId = item.product.store._id;
+
+                    if (!acc[storeId]) {
+                      acc[storeId] = {
+                        store: item.product.store,
+                        items: [],
+                      };
+                    }
+                    acc[storeId].items.push({
+                      price: item.price,
+                      quantity: item.quantity,
+                      product: item.product,
+                    });
+                  }
+                  return acc;
+                },
+                {} as Record<
+                  string,
+                  {
+                    store: StoreType;
+                    items: {
+                      price: number;
+                      quantity: number;
+                      product: ProductInfoType;
+                    }[];
+                  }
+                >
+              )
+            ).map(({ store, items }, storeIndex) => (
               <div key={storeIndex} className="mb-6 last:mb-0">
                 <div className="flex items-center gap-4 mb-4">
                   <img
-                    src={store.logo}
-                    alt={store.store}
+                    src={store?.image}
+                    alt={store?.name}
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
-                    <div className="font-medium">{store.store}</div>
+                    <div className="font-medium">{store?.name}</div>
                     <div className="text-sm text-gray-500">
-                      Delivery in {store.deliveryTime}
+                      {store?.description}
                     </div>
                   </div>
                 </div>
 
-                {store.items.map((item, itemIndex) => (
-                  <div
-                    key={itemIndex}
-                    className="flex gap-4 bg-gray-50 p-4 rounded-lg"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-20 h-20 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-medium mb-1">{item.name}</h3>
-                      <p className="text-sm text-gray-500 mb-2">
-                        {item.weight}
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-2xl">
-                          {Math.floor(item.price)}.
-                          <sup className="text-base">
-                            {(item.price % 1).toFixed(2).substring(2)}$
-                          </sup>
-                        </span>
-                        <div className="flex items-center gap-2 bg-white rounded-lg p-1 shadow-sm">
-                          <button className="p-1">
-                            <Minus className="h-4 w-4" />
-                          </button>
-                          <span className="px-2">{item.quantity}</span>
-                          <button className="p-1">
-                            <Plus className="h-4 w-4" />
-                          </button>
+                {items?.map(
+                  (
+                    item: {
+                      product: ProductInfoType;
+                      price: number;
+                      quantity: number;
+                    },
+                    itemIndex
+                  ) => (
+                    <div
+                      key={itemIndex}
+                      className="flex gap-4 bg-gray-50 p-4 rounded-lg"
+                    >
+                      <img
+                        src={item.product?.images?.[0]}
+                        alt={item.product?.name}
+                        className="w-20 h-20 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-medium mb-1">
+                          {item.product?.name}
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-2">
+                          {item.product?.weight}g
+                        </p>
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-2xl">
+                            {Math.floor(item.price)}.
+                            <sup className="text-base">
+                              {(item.price % 1).toFixed(2).substring(2)}$
+                            </sup>
+                          </span>
+                          <div className="flex items-center gap-2 bg-white rounded-lg p-1 shadow-sm">
+                            <button className="p-1">
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="px-2">{item.quantity}</span>
+                            <button className="p-1">
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             ))}
           </div>
@@ -181,17 +258,6 @@ export default function CheckoutPage() {
             <h2 className="text-xl font-semibold mb-6">Order summary</h2>
 
             <div className="space-y-4 mb-6">
-              <div className="flex items-center gap-4">
-                <input
-                  type="radio"
-                  name="payment"
-                  id="online"
-                  checked={selectedPayment === "online"}
-                  onChange={() => setSelectedPayment("online")}
-                  className="text-teal-600"
-                />
-                <label htmlFor="online">Online Payment</label>
-              </div>
               <div className="flex items-center gap-4">
                 <input
                   type="radio"
@@ -249,6 +315,7 @@ export default function CheckoutPage() {
             </button>
 
             <button
+              disabled={!allValuesNotNull}
               onClick={handleConfirmOrder}
               className="w-full py-3 bg-main-bg text-main-text rounded-lg font-medium mb-6"
             >

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import EditProfileModal from "../components/EditProfileModal";
 import { useState } from "react";
 import EditAddressModal from "../components/EditAddressModal";
+import { useFetchOrders } from "../service/order.service";
 
 const orders = [
   {
@@ -66,6 +67,7 @@ const ProfilePage = () => {
     state: "New Delhi",
     zip: "110078",
   });
+  const { data: orders, isLoading } = useFetchOrders();
   const navigate = useNavigate();
   const handleTrackOrder = (id: string) => {
     const cleanId = id.startsWith("#") ? id.slice(1) : id;
@@ -138,71 +140,110 @@ const ProfilePage = () => {
         <div className="bg-white rounded-lg p-6">
           <h3 className="font-medium text-gray-800 mb-4">Order History</h3>
           <div className="space-y-6">
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="border-b border-b-gray-200 pb-6 last:border-b-0 last:pb-0"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <span className="font-medium text-gray-800">
-                      {order.id}
-                    </span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Clock className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-500">
-                        {order.date}
-                      </span>
+            {isLoading
+              ? Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="border-b border-b-gray-200 pb-6 last:border-b-0 last:pb-0 animate-pulse"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="h-4 w-4 bg-gray-200 rounded-full"></div>
+                          <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                        </div>
+                      </div>
+                      <div className="h-6 w-20 bg-gray-200 rounded-full"></div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {Array.from({ length: 2 }).map((_, itemIndex) => (
+                        <div
+                          key={itemIndex}
+                          className="flex items-center gap-3"
+                        >
+                          <div className="w-12 h-12 bg-gray-200 rounded"></div>
+                          <div className="flex-1 space-y-2">
+                            <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
+                            <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+                          </div>
+                          <div className="h-4 w-10 bg-gray-200 rounded"></div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                      <div className="h-4 w-20 bg-gray-200 rounded"></div>
                     </div>
                   </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      order.status === "In Progress"
-                        ? "bg-orange-100 text-orange-600"
-                        : "bg-green-100 text-green-600"
-                    }`}
+                ))
+              : orders.map((order) => (
+                  <div
+                    key={order._id}
+                    className="border-b border-b-gray-200 pb-6 last:border-b-0 last:pb-0"
                   >
-                    {order.status}
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  {order.items.map((item, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-12 h-12 rounded object-cover"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-800">
-                          {item.name}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          Qty: {item.quantity}
-                        </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <span className="font-medium text-gray-800">
+                          {order.store.name}
+                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Clock className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-500">
+                            {order.date}
+                          </span>
+                        </div>
                       </div>
-                      <span className="font-medium text-gray-800">
-                        ${item.price}
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm ${
+                          order.status === "In Progress"
+                            ? "bg-orange-100 text-orange-600"
+                            : "bg-green-100 text-green-600"
+                        }`}
+                      >
+                        {order.status}
                       </span>
                     </div>
-                  ))}
-                </div>
 
-                <div className="flex items-center justify-between mt-4">
-                  <span className="font-medium text-gray-800">
-                    Total: ${order.total}
-                  </span>
-                  <button
-                    onClick={() => handleTrackOrder(order.id)}
-                    className="text-orange-600 flex items-center gap-1 cursor-pointer"
-                  >
-                    Track Order
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+                    <div className="space-y-3">
+                      {order.items.map((item, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <img
+                            src={item.images[0]}
+                            alt={item.name}
+                            className="w-12 h-12 rounded object-cover"
+                          />
+                          <div className="flex-1">
+                            <h4 className="text-sm font-medium text-gray-800">
+                              {item.name}
+                            </h4>
+                            <p className="text-sm text-gray-500">
+                              Qty: {item.quantity}
+                            </p>
+                          </div>
+                          <span className="font-medium text-gray-800">
+                            ${item.price}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-4">
+                      <span className="font-medium text-gray-800">
+                        Total: ${order.totalAmount}
+                      </span>
+                      <button
+                        onClick={() => handleTrackOrder(order.id)}
+                        className="text-orange-600 flex items-center gap-1 cursor-pointer"
+                      >
+                        Track Order
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
           </div>
           <div className="py-4">
             <button className="w-full flex-1 bg-main-bg text-main-text py-3 px-6 rounded-lg font-medium cursor-pointer">

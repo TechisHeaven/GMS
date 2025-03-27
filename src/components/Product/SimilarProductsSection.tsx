@@ -1,9 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import ProductContainer from "../ProductContainer";
-import { ProductType } from "../../types/product";
+import { ProductInfoType } from "../../types/product";
 
 interface SimilarProductsSectionProps {
-  products: ProductType[];
+  products: ProductInfoType[];
   isLoading: boolean;
 }
 const SimilarProductsSection = ({
@@ -27,7 +27,7 @@ const SimilarProductsSection = ({
                 className="animate-pulse bg-gray-200 h-60 rounded-md"
               ></div>
             ))
-          : products?.map((product: ProductType, index: number) => (
+          : products?.map((product: ProductInfoType, index: number) => (
               <ProductContainer key={index} product={product} />
             ))}
       </div>

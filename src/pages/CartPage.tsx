@@ -5,7 +5,7 @@ import { useCart } from "../providers/cart.provider";
 import { stopPropagation } from "../utils/mouseEvent.utils";
 
 export default function CartPage() {
-  const { cart, updateQuantity, removeFromCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, proceedToCheckout } = useCart();
   const navigate = useNavigate();
 
   const handleIncrement = (
@@ -39,7 +39,15 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
-    navigate("/checkout");
+    const sanitizedCart = cart.map(
+      ({ userId, createdAt, updatedAt, _id, ...rest }) => rest
+    );
+    proceedToCheckout(sanitizedCart);
+    const productIds = cart
+      .map((item) => (typeof item.product === "object" ? item.product._id : ""))
+      .filter((id) => id)
+      .join(",");
+    navigate(`/checkout?items=${productIds}`);
   };
 
   const subtotal = cart.reduce((acc, item) => acc + item.price, 0);

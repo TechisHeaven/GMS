@@ -48,6 +48,14 @@ export const ProductService = {
       throw error;
     }
   },
+  fetchProductsByIds: async (ids?: string[]) => {
+    try {
+      const response = await api.post(`/api/products//by-ids`, { ids });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export const useFetchFeaturedProducts = (page?: number, limit?: number) => {
@@ -85,5 +93,12 @@ export const useRelatedProducts = (id?: string | null) => {
     queryKey: ["similar-products", id],
     queryFn: () => ProductService.fetchSimilarProductsById(id),
     retry: false,
+  });
+};
+export const useFetchProductsById = (ids?: string[]) => {
+  return useQuery({
+    queryKey: ["checkoutItems", ids],
+    queryFn: () => ProductService.fetchProductsByIds(ids),
+    enabled: ids && ids.length > 0, // Only fetch if there are items
   });
 };
