@@ -1,21 +1,27 @@
+import { StoreType } from "./store";
+
 export type ProductType = {
-  id: string | number;
+  _id: string;
   name: string;
-  image: string;
+  image?: string;
+  images?: string;
   price: number;
   weight: string;
 };
 
 export type ProductInfoType = {
-  id: string | number;
+  _id: string;
   name: string;
   price: number;
   rating: number;
   reviews: number;
   description: string;
   images: string[];
-  categories: { id: string | number; name: string }[];
-  store: string;
+  tags: string[];
+  categories: { _id: string; name: string }[];
+  store: StoreType;
   soldCount: number;
   soldTime: number;
+  sku: string;
+  weight: number;
 };

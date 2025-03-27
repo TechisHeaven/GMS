@@ -7,11 +7,6 @@ const Footer = () => {
         to="/"
         className="flex items-center justify-center mb-5 text-2xl font-semibold text-gray-900"
       >
-        <img
-          src="https://www.svgrepo.com/show/499962/music.svg"
-          className="h-12 mr-3 sm:h-9"
-          alt="Landwind Logo"
-        />
         Grocery Management System
       </Link>
 

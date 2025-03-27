@@ -254,16 +254,6 @@ export default function CheckoutPage() {
             >
               Confirm order
             </button>
-
-            <div className="bg-orange-50 p-4 rounded-lg flex items-center gap-4">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                💰
-              </div>
-              <div>
-                <div className="font-medium">Earn 5% cash back on tabby</div>
-                <button className="text-orange-600 text-sm">Learn More</button>
-              </div>
-            </div>
           </div>
         </div>
       </div>

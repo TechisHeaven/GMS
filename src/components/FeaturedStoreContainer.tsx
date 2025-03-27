@@ -8,7 +8,7 @@ interface FeaturedStoreContainerProps {
 const FeaturedStoreContainer = ({ store }: FeaturedStoreContainerProps) => {
   return (
     <Link
-      to={`/store/${store.id}`}
+      to={`/store/${store._id}`}
       className="bg-white w-full h-full rounded-2xl overflow-hidden"
     >
       <div
@@ -23,14 +23,14 @@ const FeaturedStoreContainer = ({ store }: FeaturedStoreContainerProps) => {
           className="rounded-full object-cover border border-white -mt-8"
           alt=""
         />
-        <h6 className="text-xl font-semibold">{store.title}</h6>
+        <h6 className="text-xl font-semibold">{store.name}</h6>
         <p className="inline-flex items-center gap-2">
           <Zap
             color="transparent"
             className="-rotate-12 fill-yellow"
             size={16}
           />
-          Delivery in {store.deliveryTime} minutes
+          {store.description}
         </p>
       </div>
     </Link>

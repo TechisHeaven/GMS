@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { ProductType } from "../types/product";
+import { ProductInfoType, ProductType } from "../types/product";
 import { CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import { stopPropagation } from "../utils/mouseEvent.utils";
+import { useCart } from "../providers/cart.provider";
 
 const priceContainerStyles = (
   isQuantityMoreThenZero: boolean
@@ -42,27 +44,40 @@ const quantityStyles = (animate: boolean): CSSProperties => ({
   animation: animate ? "quantity-increase 0.3s ease-in-out" : "none",
 });
 
-const ProductContainer = ({ product }: { product: ProductType }) => {
-  const [quantity, setQuantity] = useState(0);
+const ProductContainer = ({ product }: { product: ProductInfoType }) => {
+  const { cart, addToCart, removeFromCart, updateQuantity } = useCart();
+  const cartItem = cart.find(
+    (item) =>
+      typeof item.product !== "string" && item.product._id === product._id
+  );
+  const quantity = cartItem?.quantity ?? 0;
   const [animate, setAnimate] = useState(false);
 
-  const stopPropagation = (
-    e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>
-  ) => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
   const handleIncrease = (e: React.MouseEvent<HTMLButtonElement>) => {
     stopPropagation(e);
     setAnimate(true);
-    setQuantity((prevQuantity) => prevQuantity + 1);
+    const newQuantity = quantity + 1;
+    if (newQuantity === 1) {
+      addToCart({
+        price: product.price,
+        product: product._id,
+        quantity: 1,
+      });
+    } else {
+      if (cartItem) updateQuantity(cartItem._id!, newQuantity);
+    }
   };
 
   const handleDecrease = (e: React.MouseEvent<HTMLButtonElement>) => {
     stopPropagation(e);
     if (quantity > 0) {
       setAnimate(true);
-      setQuantity((prevQuantity) => prevQuantity - 1);
+      const newQuantity = quantity - 1;
+      if (newQuantity === 0 && cartItem) {
+        removeFromCart(cartItem._id!);
+      } else {
+        if (cartItem) updateQuantity(cartItem._id!, newQuantity);
+      }
     }
   };
 
@@ -70,7 +85,7 @@ const ProductContainer = ({ product }: { product: ProductType }) => {
 
   return (
     <Link
-      to={`/product/${product.id}`}
+      to={`/product/${product._id}`}
       key={product.name}
       className="bg-white rounded-lg product-container font-semibold p-3 shadow-sm flex items-center flex-col"
     >
@@ -84,17 +99,17 @@ const ProductContainer = ({ product }: { product: ProductType }) => {
         `}
       </style>
       <img
-        src={product.image}
+        src={product.images[0]}
         alt={product.name}
         className="w-full h-48 object-cover rounded-lg mb-4"
       />
       <h4 className=" text-lg mb-1">{product.name}</h4>
-      <p className="text-sm text-gray-500 mb-2">{product.weight}</p>
+      <p className="text-sm text-gray-500 mb-2">{product.weight} gm</p>
       <div className="flex flex-col justify-between items-center w-full">
         <span className="font-bold text-3xl">
           {Math.floor(product.price)}.
           <span className="text-base align-text-top">
-            {(product.price % 1).toFixed(2).substring(2)}$
+            {(product.price % 1).toFixed(2).substring(2)}₹
           </span>
         </span>
         <div

@@ -1,7 +1,7 @@
 export type StoreType = {
-  id: string | number;
-  title: string;
-  deliveryTime: string | number;
+  _id: string | number;
+  name: string;
+  description: string;
   image: string;
   banner: string;
 };

@@ -1,7 +1,8 @@
 import { ProductInfoType } from "../types/product";
 import { useState } from "react";
-import { Heart, Scale, Clock } from "lucide-react";
+import { Heart, Scale, Clock, ShoppingCart } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../providers/cart.provider";
 
 const ProductInformationContainer = ({
   product,
@@ -10,10 +11,18 @@ const ProductInformationContainer = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const navigate = useNavigate();
+  const { addToCart, cart } = useCart();
 
   function handleBuyNow() {
     navigate("/checkout");
   }
+
+  const productInCart = cart.find((item) =>
+    typeof item.product === "object"
+      ? item?.product?._id === product._id
+      : product._id === item.product
+  );
+
   return (
     <div className="flex flex-col md:flex-row gap-8">
       {/* Image Gallery */}
@@ -22,10 +31,10 @@ const ProductInformationContainer = ({
           <img
             src={product.images[selectedImage]}
             alt={product.name}
-            className="w-full aspect-square object-contain rounded-lg mb-4"
+            className="w-full aspect-square object-cover rounded-lg mb-4 h-full"
           />
           <div className="grid grid-cols-5 gap-2">
-            {product.images.map((image, index) => (
+            {product?.images?.map((image, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
@@ -52,29 +61,48 @@ const ProductInformationContainer = ({
             <span>270 : 13 : 10 : 32</span>
           </div>
 
-          <div className="text-sm text-gray-500 mb-2">{product.store}</div>
+          <div className="text-sm text-gray-500 mb-2">{product.store.name}</div>
           <h1 className="text-2xl font-bold mb-4">{product.name}</h1>
 
-          <div className="flex items-center gap-2 mb-4">
-            <div className="flex items-center">
-              {"★".repeat(Math.floor(product.rating))}
-              {"☆".repeat(5 - Math.floor(product.rating))}
-            </div>
-            <span className="text-gray-500">({product.reviews} reviews)</span>
-          </div>
+          <span className="font-bold text-3xl">
+            {Math.floor(product.price)}.
+            <span className="text-base align-text-top">
+              {(product.price % 1).toFixed(2).substring(2)}₹
+            </span>
+          </span>
+          <span>
+            {" "}
+            /
+            {product.weight >= 1000
+              ? `${(product.weight / 1000).toFixed(1)} kg`
+              : `${product.weight} g`}
+          </span>
 
-          <div className="text-3xl font-bold mb-6">
-            ${product.price}
-            <sup>12$</sup>
-          </div>
-
-          <div className="flex gap-4 mb-6">
-            <button className="flex-1 bg-gray-100 text-gray-800 py-3 px-6 rounded-lg flex items-center justify-center gap-2">
-              Add to bucket
-            </button>
+          <div className="flex gap-4 my-6">
+            {productInCart ? (
+              <button
+                onClick={() => navigate("/cart")}
+                className="flex-1 cursor-pointer  border border-main-bg text-black py-3 px-6 rounded-full flex items-center justify-center gap-2"
+              >
+                <ShoppingCart className="h-4 w-4" /> Go to cart
+              </button>
+            ) : (
+              <button
+                onClick={() =>
+                  addToCart({
+                    product: product._id,
+                    quantity: 1,
+                    price: product.price,
+                  })
+                }
+                className="flex-1 cursor-pointer bg-gray-100 text-gray-800 py-3 px-6 rounded-full flex items-center justify-center gap-2"
+              >
+                <ShoppingCart className="h-4 w-4" /> Add to bucket
+              </button>
+            )}
             <button
               onClick={handleBuyNow}
-              className="flex-1 bg-main-bg text-main-text py-3 px-6 rounded-lg font-medium cursor-pointer"
+              className="flex-1 bg-main-bg text-main-text py-3 px-6 rounded-full font-medium cursor-pointer"
             >
               Buy now
             </button>
@@ -92,13 +120,13 @@ const ProductInformationContainer = ({
           </div>
 
           <div className="border-t pt-6">
-            <div className="text-sm text-gray-500 mb-2">SKU: {product.id}</div>
+            <div className="text-sm text-gray-500 mb-2">SKU: {product.sku}</div>
             <div className="text-sm mb-4">
               Categories:{" "}
               {product.categories.map((cat, i) => (
                 <Link
                   key={i}
-                  to={`/category/${cat.id}`}
+                  to={`/products/?category=${cat._id}&cname=${cat.name}`}
                   className="text-teal-600 hover:underline"
                 >
                   {cat.name}

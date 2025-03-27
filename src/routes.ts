@@ -6,7 +6,7 @@ import ProductPage from "./pages/ProductPage";
 import CartPage from "./pages/CartPage";
 import ProfilePage from "./pages/ProfilePage";
 import TrackingPage from "./pages/TrackingPage";
-import CategoriesPage from "./pages/CategoriesPage";
+import ProductsPage from "./pages/ProductsPage";
 import OrderConfirmedPage from "./pages/OrderConfirmedPage";
 import PageNotFoundPage from "./pages/PageNotFoundPage";
 
@@ -20,8 +20,8 @@ export let router = createBrowserRouter([
         Component: HomePage,
       },
       {
-        path: "/category/:id?",
-        Component: CategoriesPage,
+        path: "/products",
+        Component: ProductsPage,
       },
       {
         path: "/checkout",

@@ -14,9 +14,10 @@ interface BannerPromoInterface {
 const BannerPromo = ({ data }: BannerPromoInterface) => {
   return (
     <div
-      className={`p-8 rounded-3xl inline-flex bg-no-repeat ${
-        data.banner ? `bg-[url('${data.banner}')]` : "bg-main-bg"
-      } bg-cover`}
+      className={`p-8 max-h-72 h-64 rounded-3xl inline-flex bg-no-repeat bg-main-bg bg-cover`}
+      style={{
+        backgroundImage: `url(${data.banner})`,
+      }}
     >
       <div className="left-container select-none flex flex-col gap-2 items-start">
         <div
@@ -26,14 +27,18 @@ const BannerPromo = ({ data }: BannerPromoInterface) => {
           <Package style={{ color: data.textColor }} size={16} />
           <h6 style={{ color: data.textColor }}>{data.info}</h6>
         </div>
-        <h1 className="font-black text-4xl" style={{ color: data.bgColor }}>
+        <h1
+          className="font-black text-2xl sm:text-3xl md:text-4xl"
+          style={{ color: data.bgColor }}
+        >
           {data.title}
         </h1>
       </div>
-      <div className="right-container">
+      <div className="right-container h-full w-full max-h-60 flex items-end justify-end">
         <img
-          width={400}
-          height={400}
+          // width={200}
+          // height={200}
+          className="h-full aspect-square bg-contain"
           src={data.image}
           alt=""
           draggable={false}
