@@ -1,21 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Modal from "./Modal";
+
+const schema = z.object({
+  fullName: z.string().nonempty("Full name is required"),
+  address: z.string().nonempty("Address is required"),
+  city: z.string().nonempty("City is required"),
+  state: z.string().nonempty("State is required"),
+  pin: z.string().nonempty("Pin code is required"),
+  phone: z.string().nonempty("Phone is required"),
+  useAsBilling: z.boolean(),
+  country: z.string().nonempty("Country is required"),
+});
+
+type FormData = z.infer<typeof schema>;
 
 interface EditAddressModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialData: {
-    fullName: string;
-    country: string;
-    address: string;
-    address2: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    phone: string;
-    useAsBilling: boolean;
-  };
-  onSave: (data: any) => void;
+  initialData: FormData;
+  onSave: (data: FormData) => void;
 }
 
 const EditDeliveryInformationModal: React.FC<EditAddressModalProps> = ({
@@ -24,75 +30,51 @@ const EditDeliveryInformationModal: React.FC<EditAddressModalProps> = ({
   initialData,
   onSave,
 }) => {
-  const [formData, setFormData] =
-    useState<EditAddressModalProps["initialData"]>(initialData);
-  const [errors, setErrors] = useState<
-    Partial<EditAddressModalProps["initialData"]>
-  >({});
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: initialData,
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors: Partial<EditAddressModalProps["initialData"]> = {};
-    if (!formData.fullName) newErrors.fullName = "Required";
-    if (!formData.address) newErrors.address = "Required";
-    if (!formData.city) newErrors.city = "Required";
-    if (!formData.state) newErrors.state = "Required";
-    if (!formData.zipCode) newErrors.zipCode = "Required";
-    if (!formData.phone) newErrors.phone = "Required";
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      console.log("Form submitted:", formData);
-      // Handle form submission
+  useEffect(() => {
+    if (initialData) {
+      Object.entries(initialData).forEach(([key, value]) => {
+        setValue(key as keyof FormData, value);
+      });
     }
-    onSave(formData);
+  }, [initialData]);
+
+  const onSubmit = (data: FormData) => {
+    console.log("Form submitted:", data);
+    onSave(data);
     onClose();
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-
-    // Clear error when field is edited
-    if (errors[name as keyof EditAddressModalProps["initialData"]]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: undefined,
-      }));
-    }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Delivery Information">
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Name Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              First name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                errors.fullName ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Evan"
-            />
-            {errors.fullName && (
-              <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>
-            )}
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Full Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            {...register("fullName")}
+            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+              errors.fullName ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Evan"
+          />
+          {errors.fullName && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.fullName.message}
+            </p>
+          )}
         </div>
 
         {/* Country Selection */}
@@ -101,51 +83,38 @@ const EditDeliveryInformationModal: React.FC<EditAddressModalProps> = ({
             Destination/Region <span className="text-red-500">*</span>
           </label>
           <select
-            name="country"
-            value={formData.country}
-            onChange={handleChange}
-            defaultValue={"India (IND)"}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            {...register("country")}
+            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+              errors.country ? "border-red-500" : "border-gray-300"
+            }`}
           >
-            <option value="India (IND)">India (IND)</option>
+            <option value="India">India (IND)</option>
           </select>
+          {errors.country && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.country.message}
+            </p>
+          )}
         </div>
 
         {/* Address Fields */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Address <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                errors.address ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Enter delivery address"
-            />
-            {errors.address && (
-              <p className="mt-1 text-sm text-red-500">{errors.address}</p>
-            )}
-          </div>
-
-          <div>
-            <input
-              type="text"
-              name="address2"
-              value={formData.address2}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Apartment, suite, etc. (optional)"
-            />
-          </div>
-
-          <button type="button" className="text-blue-500 text-sm">
-            Add another address
-          </button>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Address <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            {...register("address")}
+            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+              errors.address ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Enter delivery address"
+          />
+          {errors.address && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.address.message}
+            </p>
+          )}
         </div>
 
         {/* City and State */}
@@ -156,16 +125,14 @@ const EditDeliveryInformationModal: React.FC<EditAddressModalProps> = ({
             </label>
             <input
               type="text"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
+              {...register("city")}
               className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                 errors.city ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Lagos"
             />
             {errors.city && (
-              <p className="mt-1 text-sm text-red-500">{errors.city}</p>
+              <p className="mt-1 text-sm text-red-500">{errors.city.message}</p>
             )}
           </div>
 
@@ -175,15 +142,15 @@ const EditDeliveryInformationModal: React.FC<EditAddressModalProps> = ({
             </label>
             <input
               type="text"
-              name="state"
-              value={formData.state}
-              onChange={handleChange}
+              {...register("state")}
               className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                 errors.state ? "border-red-500" : "border-gray-300"
               }`}
             />
             {errors.state && (
-              <p className="mt-1 text-sm text-red-500">{errors.state}</p>
+              <p className="mt-1 text-sm text-red-500">
+                {errors.state.message}
+              </p>
             )}
           </div>
         </div>
@@ -196,16 +163,14 @@ const EditDeliveryInformationModal: React.FC<EditAddressModalProps> = ({
             </label>
             <input
               type="text"
-              name="zipCode"
-              value={formData.zipCode}
-              onChange={handleChange}
+              {...register("pin")}
               className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                errors.zipCode ? "border-red-500" : "border-gray-300"
+                errors.pin ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="100001"
             />
-            {errors.zipCode && (
-              <p className="mt-1 text-sm text-red-500">{errors.zipCode}</p>
+            {errors.pin && (
+              <p className="mt-1 text-sm text-red-500">{errors.pin.message}</p>
             )}
           </div>
 
@@ -215,16 +180,16 @@ const EditDeliveryInformationModal: React.FC<EditAddressModalProps> = ({
             </label>
             <input
               type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
+              {...register("phone")}
               className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                 errors.phone ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="+91 8034582047"
             />
             {errors.phone && (
-              <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+              <p className="mt-1 text-sm text-red-500">
+                {errors.phone.message}
+              </p>
             )}
           </div>
         </div>
@@ -233,10 +198,7 @@ const EditDeliveryInformationModal: React.FC<EditAddressModalProps> = ({
         <div className="flex items-center">
           <input
             type="checkbox"
-            id="useAsBilling"
-            name="useAsBilling"
-            checked={formData.useAsBilling}
-            onChange={handleChange}
+            {...register("useAsBilling")}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
           <label

@@ -1,17 +1,18 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CartService } from "../service/cart.service";
 import { CartItem } from "../types/cart";
+import Cookies from "js-cookie";
+import { useAuth } from "./auth.provider";
 
 // Define Context Type
 interface CartContextType {
   cart: CartItem[];
-  checkoutItems: CartItem[];
+  isLoading: boolean;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-  proceedToCheckout: (items: CartItem[]) => void;
 }
 
 // Create Context
@@ -22,15 +23,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const queryClient = useQueryClient();
-  const [checkoutItems, setCheckoutItems] = useState<CartItem[]>(() => {
-    const savedItems = localStorage.getItem("checkoutItems");
-    return savedItems ? JSON.parse(savedItems) : [];
-  });
-
+  const { isAuthenticated } = useAuth();
+  const token = Cookies.get("token");
   // React Query: Fetch Cart
-  const { data: cart = [] } = useQuery({
+  const { data: cart = [], isLoading } = useQuery({
     queryKey: ["cart"],
     queryFn: CartService.fetchCart,
+    enabled: !!token && isAuthenticated,
+    retry: 3,
   });
 
   // Mutations for Updating Cart
@@ -57,20 +57,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     updateMutation.mutate({ id, quantity });
   const clearCart = () => queryClient.setQueryData(["cart"], []);
 
-  const proceedToCheckout = (items: CartItem[]) => {
-    setCheckoutItems(items);
-  };
-
   return (
     <CartContext.Provider
       value={{
         cart,
-        checkoutItems,
         addToCart,
         removeFromCart,
         updateQuantity,
         clearCart,
-        proceedToCheckout,
+        isLoading,
       }}
     >
       {children}

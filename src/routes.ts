@@ -9,10 +9,15 @@ import TrackingPage from "./pages/TrackingPage";
 import ProductsPage from "./pages/ProductsPage";
 import OrderConfirmedPage from "./pages/OrderConfirmedPage";
 import PageNotFoundPage from "./pages/PageNotFoundPage";
+import RegisterPage from "./pages/Auth/Register";
+import LoginPage from "./pages/Auth/LoginPage";
+import AuthLayout from "./layout/AuthLayout";
+import Loader from "./components/Loader/Loader";
 
 export let router = createBrowserRouter([
   {
     path: "/",
+    loader: Loader,
     Component: Root,
     children: [
       {
@@ -50,6 +55,21 @@ export let router = createBrowserRouter([
       {
         path: "*",
         Component: PageNotFoundPage,
+      },
+    ],
+  },
+  {
+    path: "/",
+    Component: AuthLayout,
+    loader: Loader,
+    children: [
+      {
+        path: "/login",
+        Component: LoginPage,
+      },
+      {
+        path: "/register",
+        Component: RegisterPage,
       },
     ],
   },

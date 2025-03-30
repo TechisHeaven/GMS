@@ -1,16 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../utils/api.utils";
+import Cookies from "js-cookie";
 
 export const OrderService = {
   placeOrder: async (orders: any): Promise<any> => {
     try {
+      const token = Cookies.get("token");
       const response = await api.post(
         `/api/orders`,
         { orders },
         {
           headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2UyOWU3Nzc4YTQxNjJiNjM3YzBjOWQiLCJpYXQiOjE3NDMwNzU2NTgsImV4cCI6MTc0MzE2MjA1OH0.qJu3oe01HAB8v5hiN75WTqFnITPzxrDzR3wMtldUnPQ",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -21,10 +22,23 @@ export const OrderService = {
   },
   fetchOrder: async () => {
     try {
+      const token = Cookies.get("token");
       const response = await api.get(`/api/orders`, {
         headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2UyOWU3Nzc4YTQxNjJiNjM3YzBjOWQiLCJpYXQiOjE3NDMwNzU2NTgsImV4cCI6MTc0MzE2MjA1OH0.qJu3oe01HAB8v5hiN75WTqFnITPzxrDzR3wMtldUnPQ",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  fetchOrderById: async (id: string) => {
+    try {
+      const token = Cookies.get("token");
+      const response = await api.get(`/api/orders/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -39,5 +53,14 @@ export const useFetchOrders = () => {
     queryKey: ["orders"],
     queryFn: () => OrderService.fetchOrder(),
     retry: false,
+  });
+};
+
+export const useFetchOrderById = (id: string) => {
+  return useQuery({
+    queryKey: ["order", id],
+    queryFn: () => OrderService.fetchOrderById(id),
+    retry: false,
+    enabled: !!id,
   });
 };

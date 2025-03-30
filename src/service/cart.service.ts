@@ -1,13 +1,14 @@
 import api from "../utils/api.utils";
 import { CartItem } from "../types/cart";
+import Cookies from "js-cookie";
 
 export const CartService = {
   fetchCart: async (): Promise<CartItem[]> => {
     try {
+      const token = Cookies.get("token");
       const { data } = await api.get("/api/carts", {
         headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2UyOWU3Nzc4YTQxNjJiNjM3YzBjOWQiLCJpYXQiOjE3NDMwNzU2NTgsImV4cCI6MTc0MzE2MjA1OH0.qJu3oe01HAB8v5hiN75WTqFnITPzxrDzR3wMtldUnPQ",
+          Authorization: `Bearer ${token}`,
         },
       });
       return data;
@@ -17,10 +18,10 @@ export const CartService = {
   },
   addToCart: async (item: CartItem): Promise<CartItem[]> => {
     try {
+      const token = Cookies.get("token");
       const { data } = await api.post("/api/carts", item, {
         headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2UyOWU3Nzc4YTQxNjJiNjM3YzBjOWQiLCJpYXQiOjE3NDMwNzU2NTgsImV4cCI6MTc0MzE2MjA1OH0.qJu3oe01HAB8v5hiN75WTqFnITPzxrDzR3wMtldUnPQ",
+          Authorization: `Bearer ${token}`,
         },
       });
       return data;
@@ -30,10 +31,10 @@ export const CartService = {
   },
   removeFromCart: async (id: CartItem["_id"]): Promise<CartItem[]> => {
     try {
+      const token = Cookies.get("token");
       const { data } = await api.delete(`/api/carts/${id}`, {
         headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2UyOWU3Nzc4YTQxNjJiNjM3YzBjOWQiLCJpYXQiOjE3NDMwNzU2NTgsImV4cCI6MTc0MzE2MjA1OH0.qJu3oe01HAB8v5hiN75WTqFnITPzxrDzR3wMtldUnPQ",
+          Authorization: `Bearer ${token}`,
         },
       });
       return data;
@@ -46,13 +47,13 @@ export const CartService = {
     quantity: number
   ): Promise<CartItem[]> => {
     try {
+      const token = Cookies.get("token");
       const { data } = await api.put(
         `/api/carts/${id}`,
         { quantity },
         {
           headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2UyOWU3Nzc4YTQxNjJiNjM3YzBjOWQiLCJpYXQiOjE3NDMwNzU2NTgsImV4cCI6MTc0MzE2MjA1OH0.qJu3oe01HAB8v5hiN75WTqFnITPzxrDzR3wMtldUnPQ",
+            Authorization: `Bearer ${token}`,
           },
         }
       );

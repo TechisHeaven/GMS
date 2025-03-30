@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import EmptyCart from "../components/Cart";
 import { useCart } from "../providers/cart.provider";
 import { stopPropagation } from "../utils/mouseEvent.utils";
+import CartSkeleton from "../components/Skeletons/CartSkeleton";
 
 export default function CartPage() {
-  const { cart, updateQuantity, removeFromCart, proceedToCheckout } = useCart();
+  const { cart, updateQuantity, removeFromCart, isLoading } = useCart();
   const navigate = useNavigate();
 
   const handleIncrement = (
@@ -39,22 +40,15 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
-    const sanitizedCart = cart.map(
-      ({ userId, createdAt, updatedAt, _id, ...rest }) => rest
-    );
-    proceedToCheckout(sanitizedCart);
-    const productIds = cart
-      .map((item) => (typeof item.product === "object" ? item.product._id : ""))
-      .filter((id) => id)
-      .join(",");
-    navigate(`/checkout?items=${productIds}`);
+    navigate(`/checkout?isCartCheckout=true`);
   };
 
   const subtotal = cart.reduce((acc, item) => acc + item.price, 0);
-  const deliveryFee = 2.0;
-  const total = subtotal + deliveryFee;
+  const total = subtotal;
 
-  return cart.length <= 0 ? (
+  return isLoading ? (
+    <CartSkeleton />
+  ) : cart.length <= 0 ? (
     <EmptyCart />
   ) : (
     <div className="min-h-screen bg-gray-50">
@@ -110,7 +104,7 @@ export default function CartPage() {
                         </button>
                       </div>
                       <span className="font-semibold">
-                        ${item.price.toFixed(2)}
+                        ₹{item.price.toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -130,15 +124,11 @@ export default function CartPage() {
             <div className="bg-white p-4 space-y-4 w-72 rounded-lg shadow-sm">
               <div className="flex justify-between cart-center text-gray-600">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between cart-center text-gray-600">
-                <span>Delivery Fee</span>
-                <span>${deliveryFee.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between cart-center text-lg font-semibold">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
               <button
                 onClick={handleCheckout}

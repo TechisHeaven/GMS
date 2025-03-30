@@ -11,13 +11,10 @@ const ProductInformationContainer = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const navigate = useNavigate();
-  const { addToCart, cart, proceedToCheckout } = useCart();
+  const { addToCart, cart } = useCart();
 
-  function handleBuyNow() {
-    proceedToCheckout([
-      { quantity: 1, product: product, price: product.price },
-    ]);
-    navigate("/checkout");
+  function handleBuyNow(id: string) {
+    navigate(`/checkout?product=${id}&isCartCheckout=false`);
   }
 
   const productInCart = cart.find((item) =>
@@ -104,7 +101,7 @@ const ProductInformationContainer = ({
               </button>
             )}
             <button
-              onClick={handleBuyNow}
+              onClick={() => handleBuyNow(product._id)}
               className="flex-1 bg-main-bg text-main-text py-3 px-6 rounded-full font-medium cursor-pointer"
             >
               Buy now

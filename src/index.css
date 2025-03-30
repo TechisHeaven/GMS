@@ -20,6 +20,7 @@
 
 @theme {
   --color-main-bg: #bde972;
+  --color-main-hover-bg: #9fd345;
   --color-main-text: #1d431f;
   --color-placeholer-bg: #f1f5ea;
   --color-yellow: #f0c043;

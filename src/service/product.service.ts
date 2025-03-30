@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../utils/api.utils";
 
 export const ProductService = {
@@ -50,11 +50,20 @@ export const ProductService = {
   },
   fetchProductsByIds: async (ids?: string[]) => {
     try {
-      const response = await api.post(`/api/products//by-ids`, { ids });
+      const response = await api.post(`/api/products/by-ids`, { ids });
       return response.data;
     } catch (error) {
       throw error;
     }
+  },
+  searchProduct: async (query?: string, limit = 10) => {
+    const response = await api.get(`/api/products/search/product`, {
+      params: {
+        query,
+        limit,
+      },
+    });
+    return response.data;
   },
 };
 
@@ -100,5 +109,22 @@ export const useFetchProductsById = (ids?: string[]) => {
     queryKey: ["checkoutItems", ids],
     queryFn: () => ProductService.fetchProductsByIds(ids),
     enabled: ids && ids.length > 0, // Only fetch if there are items
+  });
+};
+export const useSearchProduct = () => {
+  const queryClient = useQueryClient();
+  // return useQuery({
+  //   queryKey: ["search-items", query],
+  //   queryFn: () => ProductService.searchProduct(query, limit),
+  //   enabled: !query, // Only fetch if there are items
+  // });
+
+  return useMutation({
+    mutationFn: (query?: string, limit?: number) =>
+      ProductService.searchProduct(query, limit),
+    onSuccess: (data, query) => {
+      // Cache the search results
+      queryClient.setQueryData(["search", query], data);
+    },
   });
 };
