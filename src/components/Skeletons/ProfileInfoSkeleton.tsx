@@ -1,5 +1,3 @@
-import React from "react";
-
 const ProfileInfoSkeleton = () => {
   return (
     <div className="bg-white rounded-lg p-6 mb-6 animate-pulse">

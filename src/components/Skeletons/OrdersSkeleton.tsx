@@ -1,5 +1,3 @@
-import React from "react";
-
 const OrdersSkeleton = () => {
   return Array.from({ length: 3 }).map((_, index) => (
     <div

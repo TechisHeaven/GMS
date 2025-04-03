@@ -1,5 +1,3 @@
-import React from "react";
-
 const CartSkeleton = () => {
   return (
     <div className="min-h-screen bg-gray-50">
