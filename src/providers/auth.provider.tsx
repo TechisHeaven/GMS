@@ -52,7 +52,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       AuthService.login(email, password),
     onSuccess: (data) => {
-      Cookies.set("token", data.token, { sameSite: "strict" });
+      Cookies.set("token", data.token);
+      // Cookies.set("token", data.token, { sameSite: "strict" });
       queryClient.invalidateQueries({ queryKey: ["user"] });
       verifyUser();
     },
@@ -72,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       password: string;
     }) => AuthService.register(fullName, email, password),
     onSuccess: (data) => {
-      Cookies.set("token", data.token, { sameSite: "strict" });
+      Cookies.set("token", data.token);
       queryClient.invalidateQueries({ queryKey: ["user"] });
       verifyUser();
     },
