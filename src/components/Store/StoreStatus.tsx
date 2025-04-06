@@ -1,11 +1,16 @@
 // Helper to get store status
 export const getStoreStatus = (openingTime: string, closingTime: string) => {
+  if (!openingTime || !closingTime) return "closed";
+
   const now = new Date();
   const currentTime = now.getHours() + now.getMinutes() / 60;
 
-  const [openHour, openMinute] = openingTime?.split(":").map(Number);
-  const [closeHour, closeMinute] = closingTime?.split(":").map(Number);
+  const openParts = openingTime?.split(":")?.map(Number);
+  const closeParts = closingTime?.split(":")?.map(Number);
 
+  if (openParts.length < 2 || closeParts.length < 2) return "closed";
+  const [openHour, openMinute] = openParts;
+  const [closeHour, closeMinute] = closeParts;
   const open = openHour + openMinute / 60;
   const close = closeHour + closeMinute / 60;
 
