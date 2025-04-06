@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Heart, Scale, Clock, ShoppingCart } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../providers/cart.provider";
+import { useAuth } from "../providers/auth.provider";
 
 const ProductInformationContainer = ({
   product,
@@ -12,6 +13,7 @@ const ProductInformationContainer = ({
   const [selectedImage, setSelectedImage] = useState(0);
   const navigate = useNavigate();
   const { addToCart, cart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   function handleBuyNow(id: string) {
     navigate(`/checkout?product=${id}&isCartCheckout=false`);
@@ -87,18 +89,20 @@ const ProductInformationContainer = ({
                 <ShoppingCart className="h-4 w-4" /> Go to cart
               </button>
             ) : (
-              <button
-                onClick={() =>
-                  addToCart({
-                    product: product._id,
-                    quantity: 1,
-                    price: product.price,
-                  })
-                }
-                className="flex-1 cursor-pointer bg-gray-100 text-gray-800 py-3 px-6 rounded-full flex items-center justify-center gap-2"
-              >
-                <ShoppingCart className="h-4 w-4" /> Add to bucket
-              </button>
+              isAuthenticated && (
+                <button
+                  onClick={() =>
+                    addToCart({
+                      product: product._id,
+                      quantity: 1,
+                      price: product.price,
+                    })
+                  }
+                  className="flex-1 cursor-pointer bg-gray-100 text-gray-800 py-3 px-6 rounded-full flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="h-4 w-4" /> Add to bucket
+                </button>
+              )
             )}
             <button
               onClick={() => handleBuyNow(product._id)}

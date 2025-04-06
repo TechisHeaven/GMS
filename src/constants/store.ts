@@ -26,3 +26,6 @@
 //       "https://imgs.search.brave.com/bJbvf5uthXNl3DzguHnI9XJ0BHhXRHVFwMLPOGv03xY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS1waG90/by9ncmVlbi1wYXBl/ci10ZXh0dXJlLWJh/Y2tncm91bmRfNDU0/MDItNjcuanBnP3Nl/bXQ9YWlzX2h5YnJp/ZA",
 //   },
 // ];
+
+export const DUMMY_IMAGE_STORE =
+  "https://img.freepik.com/free-vector/shop-with-sign-we-are-open_52683-38687.jpg?t=st=1743953639~exp=1743957239~hmac=18f2b76fbf760285552a9355dc4cd56ebdfd66322fc893f00b83c9b7c816b1a7&w=996";

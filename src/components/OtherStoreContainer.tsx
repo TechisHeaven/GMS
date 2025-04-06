@@ -18,7 +18,7 @@ const OtherStoreContainer = ({ store }: OtherStoreContainerProps) => {
     >
       <div className="inline-flex items-start gap-2">
         <img
-          src={`../${store.storeDetails?.image}`}
+          src={`${store.storeDetails?.image}`}
           width={40}
           height={40}
           className="rounded-full"

@@ -5,6 +5,8 @@ import { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { stopPropagation } from "../utils/mouseEvent.utils";
 import { useCart } from "../providers/cart.provider";
+import toast from "react-hot-toast";
+import { useAuth } from "../providers/auth.provider";
 
 const priceContainerStyles = (
   isQuantityMoreThenZero: boolean
@@ -32,6 +34,9 @@ const buttonStyles = (isQuantityMoreThenZero: boolean): CSSProperties => ({
   borderRadius: "50%",
   marginTop: isQuantityMoreThenZero ? "0rem" : "1rem",
   border: isQuantityMoreThenZero ? "1px solid black" : "0px",
+  width: "100%",
+  display: "flex",
+  justifyContent: "center",
 });
 
 const quantityStyles = (animate: boolean): CSSProperties => ({
@@ -46,6 +51,7 @@ const quantityStyles = (animate: boolean): CSSProperties => ({
 
 const ProductContainer = ({ product }: { product: ProductInfoType }) => {
   const { cart, addToCart, removeFromCart, updateQuantity } = useCart();
+  const { isAuthenticated } = useAuth();
   const cartItem = cart.find(
     (item) =>
       typeof item.product !== "string" && item.product._id === product._id
@@ -56,6 +62,7 @@ const ProductContainer = ({ product }: { product: ProductInfoType }) => {
   const handleIncrease = (e: React.MouseEvent<HTMLButtonElement>) => {
     stopPropagation(e);
     setAnimate(true);
+    if (!isAuthenticated) return toast.error("Sign In to add items to cart");
     const newQuantity = quantity + 1;
     if (newQuantity === 1) {
       addToCart({
@@ -70,6 +77,7 @@ const ProductContainer = ({ product }: { product: ProductInfoType }) => {
 
   const handleDecrease = (e: React.MouseEvent<HTMLButtonElement>) => {
     stopPropagation(e);
+    if (!isAuthenticated) return toast.error("Sign In to add items to cart");
     if (quantity > 0) {
       setAnimate(true);
       const newQuantity = quantity - 1;

@@ -13,6 +13,7 @@ import RegisterPage from "./pages/Auth/Register";
 import LoginPage from "./pages/Auth/LoginPage";
 import AuthLayout from "./layout/AuthLayout";
 import Loader from "./components/Loader/Loader";
+import StorePage from "./pages/StorePage";
 
 export let router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ export let router = createBrowserRouter([
         Component: ProductPage,
       },
       {
+        path: "/store/:id",
+        Component: StorePage,
+      },
+      {
         path: "/cart",
         Component: CartPage,
       },
@@ -51,10 +56,6 @@ export let router = createBrowserRouter([
       {
         path: "/confirm-order/:id",
         Component: OrderConfirmedPage,
-      },
-      {
-        path: "*",
-        Component: PageNotFoundPage,
       },
     ],
   },
@@ -72,5 +73,9 @@ export let router = createBrowserRouter([
         Component: RegisterPage,
       },
     ],
+  },
+  {
+    path: "*",
+    Component: PageNotFoundPage,
   },
 ]);

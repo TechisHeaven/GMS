@@ -124,7 +124,9 @@ export const useSearchProduct = () => {
       ProductService.searchProduct(query, limit),
     onSuccess: (data, query) => {
       // Cache the search results
-      queryClient.setQueryData(["search", query], data);
+      if (query || query?.length! > 0) {
+        queryClient.setQueryData(["search", query], data);
+      }
     },
   });
 };

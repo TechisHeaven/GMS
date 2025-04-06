@@ -37,7 +37,7 @@ export default function CheckoutPage() {
     productId!
   );
 
-  const { user, isLoading: isUserLoading } = useAuth();
+  const { user, isLoading: isUserLoading, isAuthenticated } = useAuth();
   const [directProductQuantity, setDirectProductQuantity] = useState(1);
 
   const [selectedPayment, setSelectedPayment] =
@@ -234,6 +234,7 @@ export default function CheckoutPage() {
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Delivery information</h2>
+
               <button
                 onClick={() => setIsDeliveryInformationModalOpen(true)}
                 className="text-orange-600 flex items-center gap-1 cursor-pointer"
@@ -487,13 +488,22 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <button
-              disabled={!allValuesNotNull}
-              onClick={handleConfirmOrder}
-              className="w-full py-3 bg-main-bg text-main-text rounded-lg font-medium mb-6"
-            >
-              Confirm order
-            </button>
+            {isAuthenticated ? (
+              <button
+                disabled={!allValuesNotNull}
+                onClick={handleConfirmOrder}
+                className="w-full py-3 bg-main-bg text-main-text rounded-lg font-medium mb-6  cursor-pointer hover:bg-main-hover-bg transition-colors"
+              >
+                Confirm order
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="w-full py-3 bg-main-bg text-main-text rounded-lg font-medium mb-6 cursor-pointer hover:bg-main-hover-bg transition-colors"
+              >
+                Login to Continue
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -60,7 +60,7 @@ export default function Header() {
     await logout();
     navigate("/login");
   }
-  const cachedResults =
+  const cachedResults: any =
     (queryClient.getQueryData(["search", searchQuery]) as []) || [];
 
   return (
@@ -117,39 +117,90 @@ export default function Header() {
                       </div>
 
                       {/* Fetched Products */}
+                      {/* Fetched Results */}
                       <div className="flex-1">
                         {isLoading ? (
                           <p className="text-gray-500">Loading...</p>
-                        ) : cachedResults?.length > 0 ? (
-                          cachedResults?.map(
-                            (product: ProductInfoType, index: number) => (
-                              <Link
-                                to={`/product/${product._id}`}
-                                onClick={() => {
-                                  setSearchQuery(product.name);
-                                  setIsSearchOpen(false);
-                                }}
-                                key={index}
-                                className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                              >
-                                <img
-                                  src={product.images[0]}
-                                  alt={product.name}
-                                  className="w-10 h-10 rounded object-cover"
-                                />
-                                <div>
-                                  <div className="text-sm text-gray-700">
-                                    {highlightText(product.name, searchQuery)}
-                                  </div>
-                                  <div className="text-sm font-semibold text-gray-900">
-                                    ${product.price}
-                                  </div>
-                                </div>
-                              </Link>
-                            )
-                          )
                         ) : (
-                          <p className="text-gray-500">No products found</p>
+                          <>
+                            {/* Products */}
+                            {cachedResults?.products?.length > 0 ? (
+                              cachedResults.products.map(
+                                (product: ProductInfoType, index: number) => (
+                                  <Link
+                                    to={`/product/${product._id}`}
+                                    onClick={() => {
+                                      setSearchQuery(product.name);
+                                      setIsSearchOpen(false);
+                                    }}
+                                    key={`product-${index}`}
+                                    className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                                  >
+                                    <img
+                                      src={product.images[0]}
+                                      alt={product.name}
+                                      className="w-10 h-10 rounded object-cover"
+                                    />
+                                    <div>
+                                      <div className="text-sm text-gray-700">
+                                        {highlightText(
+                                          product.name,
+                                          searchQuery
+                                        )}
+                                      </div>
+                                      <div className="text-sm font-semibold text-gray-900">
+                                        ${product.price}
+                                      </div>
+                                    </div>
+                                  </Link>
+                                )
+                              )
+                            ) : (
+                              <p className="text-gray-500">No products found</p>
+                            )}
+
+                            {/* Store Matches */}
+                            {cachedResults?.stores?.length > 0 && (
+                              <>
+                                <div className="border-t mt-4 pt-2 text-sm text-gray-400 font-semibold">
+                                  Stores
+                                </div>
+                                {cachedResults.stores.map(
+                                  (store: any, index: number) => (
+                                    <Link
+                                      to={`/store/${store._id}`}
+                                      onClick={() => {
+                                        setSearchQuery(store.name);
+                                        setIsSearchOpen(false);
+                                      }}
+                                      key={`store-${index}`}
+                                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                                    >
+                                      <img
+                                        src={
+                                          store.image ||
+                                          "/store-placeholder.jpg"
+                                        }
+                                        alt={store.name}
+                                        className="w-10 h-10 rounded object-cover"
+                                      />
+                                      <div>
+                                        <div className="text-sm font-medium text-gray-700">
+                                          {highlightText(
+                                            store.name,
+                                            searchQuery
+                                          )}
+                                        </div>
+                                        <div className="text-xs text-gray-500 capitalize">
+                                          {store.type}
+                                        </div>
+                                      </div>
+                                    </Link>
+                                  )
+                                )}
+                              </>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
