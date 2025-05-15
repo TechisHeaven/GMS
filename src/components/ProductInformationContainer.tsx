@@ -63,7 +63,9 @@ const ProductInformationContainer = ({
             <span>270 : 13 : 10 : 32</span>
           </div>
 
-          <div className="text-sm text-gray-500 mb-2">{product.store.name}</div>
+          <div className="text-sm text-gray-500 mb-2">
+            {product?.store?.name || "Unkown Store"}
+          </div>
           <h1 className="text-2xl font-bold mb-4">{product.name}</h1>
 
           <span className="font-bold text-3xl">
