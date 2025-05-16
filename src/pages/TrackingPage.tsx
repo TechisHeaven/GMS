@@ -168,7 +168,9 @@ const TrackingPage = () => {
                   <div className="relative">
                     <div
                       className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        index < currentStepIndex
+                        step.key === "cancelled" && order.status === "cancelled"
+                          ? "bg-red-500"
+                          : index < currentStepIndex
                           ? "bg-green-500"
                           : index === currentStepIndex
                           ? "bg-green-300"
@@ -177,7 +179,10 @@ const TrackingPage = () => {
                     >
                       <div
                         className={`w-3 h-3 rounded-full ${
-                          index < currentStepIndex
+                          step.key === "cancelled" &&
+                          order.status === "cancelled"
+                            ? "bg-white"
+                            : index < currentStepIndex
                             ? "bg-white"
                             : index === currentStepIndex
                             ? "bg-white"

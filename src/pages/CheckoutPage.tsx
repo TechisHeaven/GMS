@@ -81,10 +81,10 @@ export default function CheckoutPage() {
 
   const mutation = useMutation({
     mutationFn: OrderService.placeOrder,
-    onSuccess: (data: { orderId: string; orderNumber: string }) => {
+    onSuccess: (data: { _id: string; orderNumber: string }) => {
       toast.success("Order placed successfully ");
+      navigate(`/confirm-order/${data._id || data.orderNumber}`);
       clearCart();
-      navigate(`/confirm-order/${data.orderNumber}`);
     },
     onError: (error: Error) => {
       console.error("Error placing order:", error.message);
@@ -149,8 +149,11 @@ export default function CheckoutPage() {
   };
 
   const allValuesNotNull = user
-    ? Object.values(user).every((value) => value !== "")
+    ? Object.values(user).every((value) => value !== "") &&
+      deliveryInformation.phone &&
+      deliveryInformation.phone.toString().length >= 8
     : false;
+
   const handleIncrease = (
     product: ProductInfoType,
     e: React.MouseEvent<HTMLButtonElement>
@@ -490,9 +493,19 @@ export default function CheckoutPage() {
 
             {isAuthenticated ? (
               <button
-                disabled={!allValuesNotNull}
+                disabled={
+                  !allValuesNotNull ||
+                  !deliveryInformation.phone ||
+                  deliveryInformation.phone.length < 8
+                }
                 onClick={handleConfirmOrder}
-                className="w-full py-3 bg-main-bg text-main-text rounded-lg font-medium mb-6  cursor-pointer hover:bg-main-hover-bg transition-colors"
+                className={`w-full py-3 bg-main-bg text-main-text rounded-lg font-medium mb-6  cursor-pointer hover:bg-main-hover-bg transition-colors ${
+                  !allValuesNotNull ||
+                  !deliveryInformation.phone ||
+                  deliveryInformation.phone.length < 8
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
               >
                 Confirm order
               </button>
